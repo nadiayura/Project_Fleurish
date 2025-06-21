@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleurish - Beautiful Flower Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-[#FFF8E7]">
+    <div class="flex">
+        <!-- Sidebar Menu -->
+        <div id="sidebar" class="w-64 h-screen bg-white p-6 fixed left-0 border-r border-[#E1E9D5]">
+            <div class="flex items-center gap-2 mb-12">
+                <img src="assets/fleurish.svg" alt="Fleurish Logo" class="h-8">
+                <span class="text-2xl font-semibold text-[#4B7F52]">Fleurish</span>
+            </div>
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-[#FFF8E7] text-[#4B7F52]">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="catalog.html" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#FFF8E7] text-gray-600 hover:text-[#4B7F52]">
+                        <i class="fas fa-book-open"></i>
+                        <span>Catalog</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#FFF8E7] text-gray-600 hover:text-[#4B7F52]">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Cart</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64 w-full bg-[#FEFAE0]">
+            <nav class="p-4 flex justify-between items-center bg-[#FFF8E7] rounded-xl mx-4 mt-4">
+                <div class="relative flex-grow max-w-2xl">
+                    <input type="text" placeholder="Search..." class="w-full px-4 py-2 pl-10 pr-4 rounded-full border-none bg-white">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-[#4B7F52] hover:text-green-700">Login</a>
+                    <a href="#" class="bg-[#4B7F52] text-white p-3 rounded-full hover:bg-green-700">
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                </div>
+            </nav>
+
+            <main class="container mx-auto px-4 py-8">
+                <div class="bg-gradient-to-r from-[#BDC997] via-[#FEFAE0] to-white rounded-l-xl p-8 text-center mb-12">
+                    <h1 class="text-4xl font-bold mb-4">Blooms as beautiful as your dreams</h1>
+                    <div class="flex justify-center gap-12 mt-6">
+                        <div>
+                            <h2 class="text-2xl font-bold">50+</h2>
+                            <p>Flower Species</p>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">1M+</h2>
+                            <p>Customers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="mb-12 bg-white p-6 rounded-xl">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold mb-2">Most Popular</h2>
+                        <a href="catalog.html" class="text-green-600 hover:underline inline-block">See More</a>
+                    </div>
+                    <div id="popular-flowers" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Products will be dynamically loaded here -->
+                    </div>
+                </section>
+
+                <section class="bg-white p-8 rounded-xl mb-12">
+                    <h2 class="text-2xl font-bold mb-6 text-center">About us</h2>
+                    <p class="text-gray-700 mb-8">
+                        Fleurish is a local florist based in Jakarta, offering a wide variety of fresh and creatively designed flower
+                        arrangements for every special occasion. Embracing unique designs and fast service, Fleurish now provides an
+                        online shopping experience that allows customers to easily order bouquets, decorations, and instant gifts
+                        without visiting the store. With an integrated digital system, we are committed to delivering a practical, secure,
+                        and delightful flower shopping experience in the modern era.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div class="p-4">
+                            <div class="bg-[#F3E6BE] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <h3 class="font-bold mb-2">On Time Delivery</h3>
+                            <p class="text-sm text-gray-600">Fleurish ensures orders are delivered quickly and on time to support customer needs</p>
+                        </div>
+                        <div class="p-4">
+                            <div class="bg-[#F3E6BE] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="font-bold mb-2">Secure</h3>
+                            <p class="text-sm text-gray-600">Fleurish's online system prioritizes transaction security and user information</p>
+                        </div>
+                        <div class="p-4">
+                            <div class="bg-[#F3E6BE] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <h3 class="font-bold mb-2">24/7 Support</h3>
+                            <p class="text-sm text-gray-600">Fleurish provides a responsive customer service at any time</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>
