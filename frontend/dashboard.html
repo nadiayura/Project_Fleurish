@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleurish Backend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-[#FFF8E7]">
+    <div class="flex min-h-screen">
+        <!-- Sidebar Menu -->
+        <div id="sidebar" class="w-64 bg-white p-6 fixed left-0 h-full border-r border-[#E1E9D5]">
+            <div class="flex items-center gap-2 mb-12">
+                <img src="assets/logo.svg" alt="Fleurish Logo" class="h-8">
+                <span class="text-2xl font-semibold text-[#4B7F52]">Fleurish Admin</span>
+            </div>
+            
+            <ul class="space-y-2 mb-8">
+                <li>
+                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-[#FFF8E7] text-[#4B7F52]">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#products-section" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#FFF8E7] text-gray-600 hover:text-[#4B7F52]">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#orders-section" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#FFF8E7] text-gray-600 hover:text-[#4B7F52]">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#customers-section" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#FFF8E7] text-gray-600 hover:text-[#4B7F52]">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="border-t pt-4">
+                <button id="logout-btn" class="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-50 text-red-600">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64 w-full bg-[#FEFAE0] min-h-screen">
+            <!-- Navbar -->
+            <nav class="p-4 flex justify-between items-center bg-[#FFF8E7] rounded-xl mx-4 mt-4">
+                <h1 class="text-xl font-semibold text-[#4B7F52]">Admin Dashboard</h1>
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <button id="notif-btn" class="text-[#4B7F52] hover:text-green-700 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notif-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50">
+                            <div class="p-4 border-b">
+                                <h3 class="font-semibold">Notifications</h3>
+                            </div>
+                            <div id="notif-items" class="max-h-60 overflow-y-auto">
+                                <div class="p-4 text-center text-gray-500">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="user-menu-btn" class="flex items-center gap-2">
+                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=4B7F52&color=fff" alt="User" class="w-8 h-8 rounded-full">
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Dashboard Sections -->
+            <div class="p-6">
+                <!-- Stats Overview -->
+                <section class="mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-[#4B7F52]">Overview</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Today's Orders -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Today's Orders</h3>
+                                    <p id="today-orders" class="text-2xl font-bold text-[#4B7F52]">0</p>
+                                </div>
+                                <div class="bg-[#F3E6BE] p-3 rounded-lg">
+                                    <i class="fas fa-shopping-bag text-[#4B7F52]"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Products -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Total Products</h3>
+                                    <p id="total-products" class="text-2xl font-bold text-[#4B7F52]">0</p>
+                                </div>
+                                <div class="bg-[#F3E6BE] p-3 rounded-lg">
+                                    <i class="fas fa-box text-[#4B7F52]"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Revenue -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-gray-500 text-sm">Revenue (Monthly)</h3>
+                                    <p id="monthly-revenue" class="text-2xl font-bold text-[#4B7F52]">Rp 0</p>
+                                </div>
+                                <div class="bg-[#F3E6BE] p-3 rounded-lg">
+                                    <i class="fas fa-wallet text-[#4B7F52]"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Orders -->
+                <section id="orders-section" class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-[#4B7F52]">Recent Orders</h2>
+                        <a href="#orders-section" class="text-[#4B7F52] hover:underline">View All</a>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-table">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Products Management -->
+                <section id="products-section" class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-[#4B7F52]">Product Management</h2>
+                        <button id="add-product-btn" class="bg-[#4B7F52] text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Add Product
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading products...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Recent Customers -->
+                <section id="customers-section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-[#4B7F52]">Recent Customers</h2>
+                        <a href="#customers-section" class="text-[#4B7F52] hover:underline">View All</a>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading customers...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="product-modal-title" class="text-2xl font-bold text-[#4B7F52]">Add New Product</h2>
+                <button id="close-product-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="product-form" enctype="multipart/form-data">
+                <input type="hidden" id="product-id">
+                <input type="hidden" id="product-image-old">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Left Column -->
+                    <div>
+                        <div class="mb-4">
+                            <label for="product-name" class="block text-gray-700 text-sm font-bold mb-2">Product Name</label>
+                            <input type="text" id="product-name" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product-theme" class="block text-gray-700 text-sm font-bold mb-2">Theme/Category</label>
+                            <input type="text" id="product-theme" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product-price" class="block text-gray-700 text-sm font-bold mb-2">Price (IDR)</label>
+                            <input type="number" id="product-price" min="0" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product-stock" class="block text-gray-700 text-sm font-bold mb-2">Stock</label>
+                            <input type="number" id="product-stock" min="0" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]">
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div>
+                        <div class="mb-4">
+                            <label for="product-image" class="block text-gray-700 text-sm font-bold mb-2">Product Image</label>
+                            <input type="file" id="product-image" accept="image/*" class="w-full px-3 py-2 border rounded-lg focus:outline-none">
+                            <div id="image-preview" class="mt-2 hidden">
+                                <img id="preview-image" src="" alt="Preview" class="max-h-32">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product-status" class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                            <select id="product-status" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product-cod" class="flex items-center">
+                                <input type="checkbox" id="product-cod" class="mr-2"> COD Available
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="product-description" class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                    <textarea id="product-description" rows="4" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-[#4B7F52]"></textarea>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancel-product-modal" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button type="submit" id="save-product-btn" class="px-4 py-2 bg-[#4B7F52] text-white rounded-lg hover:bg-green-700">
+                        Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // Replace with your Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+        
+        // Helper Functions
+        function formatDate(date) {
+            if (!date) return '';
+            const d = date.toDate();
+            return d.toLocaleDateString('id-ID');
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }).format(price);
+        }
+    </script>
+</body>
+</html>

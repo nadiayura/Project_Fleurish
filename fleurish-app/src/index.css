@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@keyframes slide-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-slide-in-out {
+    animation: slide-in-out 3s ease-in-out forwards;
+  }
+
+  
